@@ -11,7 +11,7 @@ app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = tempfile.gettempdir()
 
 model = None
-model_size = "base"
+model_size = "tiny"
 
 def get_model():
     global model
@@ -60,7 +60,7 @@ def transcribe():
                 return jsonify({'error': f'ffmpeg 실행 오류: {str(e)}'}), 500
 
         whisper_model = get_model()
-        segments, info = whisper_model.transcribe(audio_path, language=language, beam_size=5, vad_filter=True)
+        segments, info = whisper_model.transcribe(audio_path, language=language, beam_size=1, vad_filter=True)
 
         result = {
             'language': info.language,
