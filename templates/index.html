@@ -48,8 +48,8 @@
                 <option value="auto">자동 감지</option>
             </select>
             <select id="modelSelect">
-                <option value="tiny">Tiny (빠름)</option>
-                <option value="base" selected>Base (권장)</option>
+                <option value="tiny" selected>Tiny (빠름, 권장)</option>
+                <option value="base">Base</option>
                 <option value="small">Small</option>
                 <option value="medium">Medium</option>
                 <option value="large-v3">Large v3 (정확함)</option>
@@ -110,7 +110,14 @@
 
             try {
                 const response = await fetch('/transcribe', { method: 'POST', body: formData });
-                const data = await response.json();
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    alert(`서버 오류 (${response.status}): 응답을 처리할 수 없습니다`);
+                    return;
+                }
 
                 if (data.error) {
                     alert('오류: ' + data.error);

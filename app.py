@@ -16,23 +16,36 @@ app.config['UPLOAD_FOLDER'] = tempfile.gettempdir()
 
 model = None
 model_size = "tiny"
+model_ready = False
 
 ALLOWED_LANGUAGES = {'ko', 'en', 'ja', 'zh', 'de', 'fr', 'es', 'ru'}
 
 def get_model():
-    global model
+    global model, model_ready
     if model is None:
         logger.info(f"모델 로딩 중: {model_size}")
         try:
             model = WhisperModel(model_size, device="cpu", compute_type="int8")
+            model_ready = True
+            logger.info("모델 로딩 완료")
         except Exception as e:
             logger.error(f"모델 로딩 실패: {e}")
+            model_ready = False
             raise
     return model
+
+try:
+    get_model()
+except Exception as e:
+    logger.error(f"앱 시작 중 모델 로딩 실패: {e}")
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/health')
+def health():
+    return jsonify({'status': 'ok', 'model_ready': model_ready, 'model_size': model_size})
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
@@ -47,7 +60,7 @@ def transcribe():
     if language == 'auto':
         language = None
 
-    selected_model = request.form.get('model_size', 'base')
+    selected_model = request.form.get('model_size', 'tiny')
 
     global model_size, model
     if selected_model != model_size:
@@ -63,6 +76,10 @@ def transcribe():
     is_video = orig_ext in ('.mp4', '.avi', '.mov', '.mkv', '.webm')
 
     try:
+        if not model_ready:
+            logger.error("모델이 준비되지 않음")
+            return jsonify({'error': '모델이 아직 로딩되지 않았습니다. 잠시 후 다시 시도해주세요.'}), 503
+
         if is_video:
             logger.info(f"비디오에서 오디오 추출 중")
             audio_path = temp_path + "_audio.mp3"
