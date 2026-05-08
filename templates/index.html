@@ -60,7 +60,7 @@
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p style="margin-top: 10px;">전사 중...</p>
+            <p id="loadingText" style="margin-top: 10px;">전사 중... (최대 30초 소요될 수 있습니다)</p>
         </div>
 
         <div class="result" id="result">
@@ -73,12 +73,18 @@
     <script>
         const uploadArea = document.getElementById('uploadArea');
         const audioInput = document.getElementById('audioInput');
+        const transcribeBtn = document.getElementById('transcribeBtn');
+        const loading = document.getElementById('loading');
+        const resultDiv = document.getElementById('result');
         let selectedFile = null;
 
         uploadArea.addEventListener('click', () => audioInput.click());
         audioInput.addEventListener('change', (e) => {
             selectedFile = e.target.files[0];
-            uploadArea.innerHTML = `<p>선택된 파일: ${selectedFile.name}</p>`;
+            if (selectedFile) {
+                let sizeMB = (selectedFile.size / 1024 / 1024).toFixed(1);
+                uploadArea.innerHTML = `<p>선택된 파일: ${selectedFile.name} (${sizeMB}MB)</p>`;
+            }
         });
 
         uploadArea.addEventListener('dragover', (e) => {

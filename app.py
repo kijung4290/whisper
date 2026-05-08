@@ -37,7 +37,8 @@ def get_model():
 try:
     get_model()
 except Exception as e:
-    logger.error(f"앱 시작 중 모델 로딩 실패: {e}")
+    logger.warning(f"앱 시작 중 모델 로딩 실패 (첫 요청 시 다시 로드): {e}")
+    model_ready = False
 
 @app.route('/')
 def index():
