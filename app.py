@@ -104,7 +104,7 @@ def transcribe():
         if language:
             transcribe_kwargs['language'] = language
         logger.info(f"전사 시작: language={language}, model={model_size}")
-        segments, info = whisper_model.transcribe(audio_path, beam_size=5, vad_filter=True, **transcribe_kwargs)
+        segments, info = whisper_model.transcribe(audio_path, beam_size=1, vad_filter=True, **transcribe_kwargs)
 
         result = {
             'language': info.language,
